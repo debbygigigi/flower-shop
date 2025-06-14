@@ -10,6 +10,7 @@ import sharp from 'sharp'
 import { Media } from './collections/Media'
 import { Order } from './collections/Order'
 import { Users } from './collections/Users'
+import { Flower } from './collections/Flower'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -21,7 +22,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Order],
+  collections: [Users, Media, Order, Flower],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

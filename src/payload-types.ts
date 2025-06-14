@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     orders: Order;
+    flowers: Flower;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -79,6 +80,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
+    flowers: FlowersSelect<false> | FlowersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -168,6 +170,19 @@ export interface Order {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flowers".
+ */
+export interface Flower {
+  id: string;
+  name: string;
+  price: number;
+  description?: string | null;
+  image?: (string | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -184,6 +199,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'orders';
         value: string | Order;
+      } | null)
+    | ({
+        relationTo: 'flowers';
+        value: string | Flower;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -271,6 +290,18 @@ export interface OrdersSelect<T extends boolean = true> {
   date?: T;
   location?: T;
   createdBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flowers_select".
+ */
+export interface FlowersSelect<T extends boolean = true> {
+  name?: T;
+  price?: T;
+  description?: T;
+  image?: T;
   updatedAt?: T;
   createdAt?: T;
 }

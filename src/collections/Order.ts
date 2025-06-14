@@ -4,7 +4,7 @@ import { adminOrOwner } from './Users/access'
 export const Order: CollectionConfig = {
   slug: 'orders',
   admin: {
-    useAsTitle: 'name',
+    useAsTitle: 'id',
     baseListFilter: (props) => {
       return adminOrOwner(props)
     },
