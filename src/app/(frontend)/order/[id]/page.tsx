@@ -36,8 +36,6 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
   const { name, location, date } = res
 
-  const handleChange = useCallback(() => {}, [])
-
   console.log('res', flowers)
 
   return (
@@ -74,7 +72,6 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                     id="email"
                     placeholder="請輸入數量"
                     value={0}
-                    onChange={(val) => handleChange(val, flower.id)}
                   />
                 </div>
                 <Button variant="outline" className="flex-grow-0">
