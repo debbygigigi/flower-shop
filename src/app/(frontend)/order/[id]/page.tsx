@@ -61,8 +61,8 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             <CardContent>
               <div className="grid gap-3">
                 <img
-                  src={flower.image.url}
-                  alt={flower.name}
+                  src={flower?.image?.url ?? ''}
+                  alt={flower?.name ?? ''}
                   className="w-full h-48 object-cover rounded-xl"
                 />
 
