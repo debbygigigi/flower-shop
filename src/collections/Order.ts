@@ -12,7 +12,7 @@ export const Order: CollectionConfig = {
 
   fields: [
     {
-      label: '往生者',
+      label: '往生者姓名',
       name: 'name',
       type: 'text',
       required: true,
@@ -35,6 +35,15 @@ export const Order: CollectionConfig = {
       type: 'relationship',
       relationTo: 'users',
       defaultValue: ({ user }) => user.id,
+    },
+    {
+      name: '複製連結',
+      type: 'ui',
+      admin: {
+        components: {
+          Cell: '/components/admin/CopyOrderLink',
+        },
+      },
     },
   ],
 
