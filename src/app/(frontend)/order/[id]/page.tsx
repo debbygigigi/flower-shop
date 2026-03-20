@@ -5,10 +5,9 @@ import '../../styles.scss'
 import config from '@/payload.config'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { format } from 'date-fns'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { useCallback } from 'react'
+import OrderFlowersClient from '@/components/frontend/OrderFlowersClient'
+import Link from 'next/link'
 
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const headers = await getHeaders()
@@ -52,38 +51,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <div>請選擇要致贈的花</div>
 
       {/* Flower Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl w-full">
-        {flowers.map((flower, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <CardTitle className="text-center text-base">{flower.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3">
-                <img
-                  src={flower?.image?.url ?? ''}
-                  alt={flower?.name ?? ''}
-                  className="w-full h-48 object-cover rounded-xl"
-                />
+      <OrderFlowersClient orderId={id} flowers={flowers} />
 
-                <div className="grid w-full max-w-sm items-center gap-3">
-                  <Input
-                    type="number"
-                    id="email"
-                    placeholder="請輸入數量"
-                    value={0}
-                  />
-                </div>
-                <Button variant="outline" className="flex-grow-0">
-                  加入購物車
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Button variant="outline">下一步</Button>
+      <Button asChild variant="outline">
+        <Link href={`/order/${id}/cart`}>下一步</Link>
+      </Button>
     </div>
   )
 }
