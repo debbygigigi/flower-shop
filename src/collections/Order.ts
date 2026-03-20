@@ -46,11 +46,12 @@ export const Order: CollectionConfig = {
       },
     },
     {
-      name: '狀態',
+      label: '狀態', 
+      name: 'status',
       type: 'select',
       options: [
         { label: '待下單', value: '待下單' },
-        { label: '未付款', value: '未付款' },
+        { label: '待付款', value: '待付款' },
         { label: '已付款', value: '已付款' },
         { label: '已取消', value: '已取消' },
       ],
@@ -65,10 +66,10 @@ export const Order: CollectionConfig = {
       type: 'text',
     },
     {
-      name: '花朵',
+      label: '花朵',
+      name: 'flowers',
       type: 'relationship',
       relationTo: 'flowers',
-      required: true,
       hasMany: true,
     },
   ],

@@ -1,0 +1,67 @@
+import { getPayload } from 'payload'
+
+import payloadConfig from '@/payload.config'
+
+export async function POST(
+  req: Request,
+  { params }: { params: { id: string } },
+) {
+  const orderId = params.id
+
+  try {
+    const body = await req.json().catch(() => null)
+    const rawItems = Array.isArray(body?.items) ? body.items : []
+
+    const items = rawItems
+      .map((it: any) => {
+        const flowerId = String(it?.flowerId ?? '')
+        const quantity = Number(it?.quantity)
+        if (!flowerId) return null
+        if (!Number.isFinite(quantity)) return null
+        if (quantity <= 0) return null
+        return {
+          flowerId,
+          quantity: Math.min(1000, Math.max(1, Math.floor(quantity))),
+        }
+      })
+      .filter(Boolean) as { flowerId: string; quantity: number }[]
+
+    if (items.length === 0) {
+      return Response.json({ ok: false, error: '購物車為空' }, { status: 400 })
+    }
+
+    const expandedFlowerIds = items.flatMap((it) =>
+      Array.from({ length: it.quantity }, () => it.flowerId),
+    )
+
+    const payloadConfigResolved = await payloadConfig
+    const payload = await getPayload({ config: payloadConfigResolved })
+
+    // 走 Payload auth：用 request headers 讓 Payload 判斷使用者
+    // const { user } = await payload.auth({ headers: req.headers as any })
+    // if (!user) {
+    //   return Response.json({ ok: false, error: '未授權' }, { status: 401 })
+    // }
+
+    await payload.update({
+      collection: 'orders',
+      where: {
+        // required
+        id: { equals: orderId },
+      },
+      data: {
+        flowers: expandedFlowerIds,
+        status: '待付款',
+      },
+      overrideAccess: true,
+    })
+
+    return Response.json({ ok: true })
+  } catch (e) {
+    return Response.json(
+      { ok: false, error: e instanceof Error ? e.message : String(e) },
+      { status: 500 },
+    )
+  }
+}
+
