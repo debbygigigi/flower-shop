@@ -45,6 +45,32 @@ export const Order: CollectionConfig = {
         },
       },
     },
+    {
+      name: '狀態',
+      type: 'select',
+      options: [
+        { label: '待下單', value: '待下單' },
+        { label: '未付款', value: '未付款' },
+        { label: '已付款', value: '已付款' },
+        { label: '已取消', value: '已取消' },
+      ],
+      defaultValue: '未付款',
+    },
+    {
+      name: '匯款後五碼',
+      type: 'text',
+    },
+    {
+      name: '匯款憑證',
+      type: 'text',
+    },
+    {
+      name: '花朵',
+      type: 'relationship',
+      relationTo: 'flowers',
+      required: true,
+      hasMany: true,
+    },
   ],
 
   access: {
@@ -56,7 +82,7 @@ export const Order: CollectionConfig = {
   hooks: {
     beforeRead: [
       async ({ doc, req: { user } }) => {
-        return doc?.createdBy === user.id ? doc : null
+        return doc?.createdBy === user?.id ? doc : null
       },
     ],
   },

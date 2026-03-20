@@ -177,6 +177,10 @@ export interface Order {
   date: string;
   location: string;
   createdBy?: (string | null) | User;
+  狀態?: ('待下單' | '未付款' | '已付款' | '已取消') | null;
+  匯款後五碼?: string | null;
+  匯款憑證?: string | null;
+  花朵: (string | Flower)[];
   updatedAt: string;
   createdAt: string;
 }
@@ -326,6 +330,10 @@ export interface OrdersSelect<T extends boolean = true> {
   date?: T;
   location?: T;
   createdBy?: T;
+  狀態?: T;
+  匯款後五碼?: T;
+  匯款憑證?: T;
+  花朵?: T;
   updatedAt?: T;
   createdAt?: T;
 }
