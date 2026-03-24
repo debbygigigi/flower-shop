@@ -6,7 +6,7 @@ export async function POST(
   req: Request,
   { params }: { params: { id: string } },
 ) {
-  const orderId = params.id
+  const { id: orderId } = await params
 
   try {
     const body = await req.json().catch(() => null)
@@ -45,9 +45,7 @@ export async function POST(
 
     await payload.update({
       collection: 'orders',
-      where: {
-        id: { equals: orderId },
-      },
+      id: orderId,
       data: {
         flowers: expandedFlowerIds,
         status: '待付款',

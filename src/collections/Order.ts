@@ -55,7 +55,7 @@ export const Order: CollectionConfig = {
         { label: '待確認付款', value: '待確認付款' },
         { label: '已取消', value: '已取消' },
       ],
-      defaultValue: '未付款',
+      defaultValue: '待下單',
     },
     {
       label: '匯款後五碼', 

@@ -72,12 +72,26 @@ export default function OrderRemittanceClient({
       <div className="min-h-screen flex flex-col items-center justify-center p-2">
         <Card className="max-w-xl w-full">
           <CardHeader>
-            <CardTitle>完成下單</CardTitle>
+            <CardTitle>已送出匯款資訊</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>感謝您完成付款與資料填寫。</p>
-            <div className="mt-4">
-              <Button variant="outline" onClick={() => router.push(`/order/${orderId}/remittance`)}>
+            <div className="space-y-2 text-sm">
+              <p className="font-medium">訂單資訊</p>
+              <p>往生者: {order?.name ?? '-'}</p>
+              <p>地點: {order?.location ?? '-'}</p>
+              <p>匯款後五碼: {last5 || order?.last5 || '-'}</p>
+              <p>匯款憑證: {selectedFile?.name ?? '已上傳'}</p>
+            </div>
+
+            <p className="mt-4 text-sm text-muted-foreground">
+              已收到您的匯款資料，請等待工作人員確認匯款，確認後將更新訂單狀態。
+            </p>
+
+            <div className="mt-4 flex gap-2">
+              <Button variant="outline" onClick={() => router.push(`/order/${orderId}`)}>
+                返回訂單頁
+              </Button>
+              <Button variant="secondary" onClick={() => router.push(`/order/${orderId}/remittance`)}>
                 重新查看
               </Button>
             </div>
