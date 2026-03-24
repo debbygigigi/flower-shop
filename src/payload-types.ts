@@ -177,9 +177,9 @@ export interface Order {
   date: string;
   location: string;
   createdBy?: (string | null) | User;
-  status?: ('待下單' | '待付款' | '已付款' | '已取消') | null;
-  匯款後五碼?: string | null;
-  匯款憑證?: string | null;
+  status?: ('待下單' | '待付款' | '待確認付款' | '已取消') | null;
+  last5?: string | null;
+  proof?: (string | null) | Media;
   flowers?: (string | Flower)[] | null;
   updatedAt: string;
   createdAt: string;
@@ -331,8 +331,8 @@ export interface OrdersSelect<T extends boolean = true> {
   location?: T;
   createdBy?: T;
   status?: T;
-  匯款後五碼?: T;
-  匯款憑證?: T;
+  last5?: T;
+  proof?: T;
   flowers?: T;
   updatedAt?: T;
   createdAt?: T;

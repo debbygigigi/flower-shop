@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,7 +20,6 @@ export default function OrderCartClient({ orderId }: { orderId: string }) {
 
   const [items, setItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState(false)
-  const [completed, setCompleted] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const readCart = useCallback((): CartItem[] => {
@@ -71,7 +69,6 @@ export default function OrderCartClient({ orderId }: { orderId: string }) {
     const empty: CartItem[] = []
     writeCart(empty)
     setItems(empty)
-    setCompleted(false)
     setError(null)
   }, [writeCart])
 
@@ -99,7 +96,7 @@ export default function OrderCartClient({ orderId }: { orderId: string }) {
       }
 
       clearCart()
-      setCompleted(true)
+      router.push(`/order/${orderId}/remittance`)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -107,35 +104,15 @@ export default function OrderCartClient({ orderId }: { orderId: string }) {
     }
   }, [clearCart, items, orderId])
 
-  if (completed) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-2 gap-4">
-        <Card className="max-w-xl w-full">
-          <CardHeader>
-            <CardTitle>下單完成</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>已成功完成下單。</p>
-            <div className="mt-4 flex gap-2">
-              <Button asChild variant="outline">
-                <Link href={`/order/${orderId}`}>返回訂單</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-2">
       <div className="w-full max-w-4xl">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-semibold">購物車確認</h1>
-          <div className="flex gap-2">
-            <Button asChild variant="outline">
-              <Link href={`/order/${orderId}`}>返回選花</Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button asChild variant="outline">
+                <a href={`/order/${orderId}`}>返回選花</a>
+              </Button>
             <Button variant="secondary" onClick={clearCart} disabled={items.length === 0}>
               清空
             </Button>

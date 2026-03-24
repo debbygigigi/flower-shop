@@ -8,6 +8,7 @@ import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import OrderFlowersClient from '@/components/frontend/OrderFlowersClient'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const headers = await getHeaders()
@@ -34,6 +35,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const flowers = flowersDocs.docs
 
   const { name, location, date } = res
+
+  // 已經完成下單/付款流程後，避免重複進到選花頁
+  if (res?.status === '待付款' || res?.status === '待確認付款') {
+    redirect(`/order/${id}/remittance`)
+  }
 
   console.log('res', flowers)
 

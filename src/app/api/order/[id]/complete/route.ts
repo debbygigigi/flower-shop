@@ -46,7 +46,6 @@ export async function POST(
     await payload.update({
       collection: 'orders',
       where: {
-        // required
         id: { equals: orderId },
       },
       data: {

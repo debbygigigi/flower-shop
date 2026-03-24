@@ -52,18 +52,21 @@ export const Order: CollectionConfig = {
       options: [
         { label: '待下單', value: '待下單' },
         { label: '待付款', value: '待付款' },
-        { label: '已付款', value: '已付款' },
+        { label: '待確認付款', value: '待確認付款' },
         { label: '已取消', value: '已取消' },
       ],
       defaultValue: '未付款',
     },
     {
-      name: '匯款後五碼',
+      label: '匯款後五碼', 
+      name: 'last5',
       type: 'text',
     },
     {
-      name: '匯款憑證',
-      type: 'text',
+      label: '匯款憑證', 
+      name: 'proof',
+      type: 'upload',
+      relationTo: 'media'
     },
     {
       label: '花朵',
