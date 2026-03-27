@@ -175,7 +175,7 @@ export default function OrderCartClient({ orderId }: { orderId: string }) {
 
             <div className="mt-4 flex gap-2 justify-end">
               <Button onClick={onCompleteOrder} disabled={loading}>
-                {loading ? '處理中...' : '完成下單'}
+                {loading ? '處理中...' : '確認下單'}
               </Button>
             </div>
           </>

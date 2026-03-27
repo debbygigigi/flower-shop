@@ -36,8 +36,25 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
   const { name, location, date } = res
 
+  if (res?.status === '已取消') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-2">
+        <Card className="text-left mb-8 p-2 max-w-xl w-full">
+          <CardHeader>
+            <CardTitle>此訂單已取消</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm font-bold">往生者: {name}</p>
+            <p className="text-sm">地點: {location}</p>
+            <p className="text-sm text-muted-foreground">日期: {format(date, 'yyyy/MM/dd')}</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   // 已經完成下單/付款流程後，避免重複進到選花頁
-  if (res?.status === '待付款' || res?.status === '待確認付款') {
+  if (res?.status === '待付款' || res?.status === '待確認付款' || res?.status === '待出貨') {
     redirect(`/order/${id}/remittance`)
   }
 

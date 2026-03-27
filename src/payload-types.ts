@@ -177,10 +177,13 @@ export interface Order {
   date: string;
   location: string;
   createdBy?: (string | null) | User;
-  status?: ('待下單' | '待付款' | '待確認付款' | '已取消') | null;
+  flowers?: (string | Flower)[] | null;
+  status?: ('待下單' | '待付款' | '待確認付款' | '待出貨' | '已完成' | '已取消') | null;
+  amount?: number | null;
+  paymentDate?: string | null;
+  shipmentDate?: string | null;
   last5?: string | null;
   proof?: (string | null) | Media;
-  flowers?: (string | Flower)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -330,10 +333,13 @@ export interface OrdersSelect<T extends boolean = true> {
   date?: T;
   location?: T;
   createdBy?: T;
+  flowers?: T;
   status?: T;
+  amount?: T;
+  paymentDate?: T;
+  shipmentDate?: T;
   last5?: T;
   proof?: T;
-  flowers?: T;
   updatedAt?: T;
   createdAt?: T;
 }

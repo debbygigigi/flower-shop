@@ -35,6 +35,16 @@ export const Order: CollectionConfig = {
       type: 'relationship',
       relationTo: 'users',
       defaultValue: ({ user }) => user.id,
+      admin: {
+        position: 'sidebar',
+      }
+    },
+    {
+      label: '訂單',
+      name: 'flowers',
+      type: 'relationship',
+      relationTo: 'flowers',
+      hasMany: true,
     },
     {
       name: '複製連結',
@@ -46,16 +56,42 @@ export const Order: CollectionConfig = {
       },
     },
     {
-      label: '狀態', 
+      label: '訂單狀態', 
       name: 'status',
       type: 'select',
       options: [
         { label: '待下單', value: '待下單' },
         { label: '待付款', value: '待付款' },
         { label: '待確認付款', value: '待確認付款' },
+        { label: '待出貨', value: '待出貨' },
+        { label: '已完成', value: '已完成' },
         { label: '已取消', value: '已取消' },
       ],
       defaultValue: '待下單',
+      admin: {
+        position: 'sidebar',
+      }
+    },
+    {
+      label: '訂單金額',
+      name: 'amount',
+      type: 'number',
+    },
+    {
+      label: '付款日期',
+      name: 'paymentDate',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+      }
+    },
+    {
+      label: '出貨日期',
+      name: 'shipmentDate',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+      }
     },
     {
       label: '匯款後五碼', 
@@ -68,13 +104,7 @@ export const Order: CollectionConfig = {
       type: 'upload',
       relationTo: 'media'
     },
-    {
-      label: '花朵',
-      name: 'flowers',
-      type: 'relationship',
-      relationTo: 'flowers',
-      hasMany: true,
-    },
+
   ],
 
   access: {

@@ -37,6 +37,33 @@ export async function POST(
     const payloadConfigResolved = await payloadConfig
     const payload = await getPayload({ config: payloadConfigResolved })
 
+    // 以資料庫中的花價計算總金額，避免信任前端資料
+    const uniqueFlowerIDs = [...new Set(items.map((it) => it.flowerId))]
+    const flowerDocs = await payload.find({
+      collection: 'flowers',
+      where: {
+        id: {
+          in: uniqueFlowerIDs,
+        },
+      },
+      limit: uniqueFlowerIDs.length,
+      overrideAccess: true,
+    })
+
+    const priceById = new Map<string, number>()
+    for (const flower of flowerDocs.docs as any[]) {
+      const flowerId = String(flower?.id ?? '')
+      const price = Number(flower?.price ?? 0)
+      if (flowerId) {
+        priceById.set(flowerId, Number.isFinite(price) ? price : 0)
+      }
+    }
+
+    const amount = items.reduce((sum, item) => {
+      const price = priceById.get(item.flowerId) ?? 0
+      return sum + price * item.quantity
+    }, 0)
+
     // 走 Payload auth：用 request headers 讓 Payload 判斷使用者
     // const { user } = await payload.auth({ headers: req.headers as any })
     // if (!user) {
@@ -49,6 +76,7 @@ export async function POST(
       data: {
         flowers: expandedFlowerIds,
         status: '待付款',
+        amount,
       },
       overrideAccess: true,
     })

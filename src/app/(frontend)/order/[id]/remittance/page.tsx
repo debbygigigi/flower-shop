@@ -30,6 +30,57 @@ export default async function RemittancePage({ params }: { params: Promise<{ id:
     redirect(`/order/${id}`)
   }
 
-  return <OrderRemittanceClient orderId={id} order={order as any} />
+  const flowerIDs = Array.isArray(order?.flowers)
+    ? order.flowers
+        .map((item: any) => {
+          if (typeof item === 'string') return item
+          if (item && typeof item === 'object' && item.id) return String(item.id)
+          return ''
+        })
+        .filter(Boolean)
+    : []
+  const uniqueFlowerIDs = [...new Set(flowerIDs)]
+
+  const flowerDocs =
+    uniqueFlowerIDs.length > 0
+      ? await payload.find({
+          collection: 'flowers',
+          where: {
+            id: {
+              in: uniqueFlowerIDs,
+            },
+          },
+          limit: uniqueFlowerIDs.length,
+          overrideAccess: true,
+          user,
+        })
+      : { docs: [] as any[] }
+
+  const flowerMap = new Map<string, { name: string; price: number }>()
+  for (const flower of flowerDocs.docs as any[]) {
+    flowerMap.set(String(flower?.id), {
+      name: String(flower?.name ?? '未命名花品'),
+      price: Number(flower?.price ?? 0),
+    })
+  }
+
+  const countMap = new Map<string, number>()
+  for (const flowerId of flowerIDs) {
+    countMap.set(flowerId, (countMap.get(flowerId) ?? 0) + 1)
+  }
+
+  const orderedItems = Array.from(countMap.entries()).map(([flowerId, quantity]) => {
+    const flower = flowerMap.get(flowerId)
+    const price = flower?.price ?? 0
+    return {
+      flowerId,
+      name: flower?.name ?? flowerId,
+      quantity,
+      price,
+      subtotal: price * quantity,
+    }
+  })
+
+  return <OrderRemittanceClient orderId={id} order={order as any} orderedItems={orderedItems} />
 }
 
