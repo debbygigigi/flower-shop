@@ -1,6 +1,20 @@
 import type { CollectionConfig } from 'payload'
 import { adminOrOwner } from './Users/access'
 
+const showAfterPendingPayment = (_: unknown, siblingData: { status?: string }) => {
+  return ['待付款', '待確認付款', '待出貨', '已完成', '已取消'].includes(
+    siblingData?.status ?? '',
+  )
+}
+
+const showAfterPaymentSubmitted = (_: unknown, siblingData: { status?: string }) => {
+  return ['待確認付款', '待出貨', '已完成', '已取消'].includes(siblingData?.status ?? '')
+}
+
+const showWhenCompleted = (_: unknown, siblingData: { status?: string }) => {
+  return siblingData?.status === '已完成'
+}
+
 export const Order: CollectionConfig = {
   slug: 'orders',
   admin: {
@@ -45,6 +59,9 @@ export const Order: CollectionConfig = {
       type: 'relationship',
       relationTo: 'flowers',
       hasMany: true,
+      admin: {
+        condition: showAfterPendingPayment,
+      },
     },
     {
       name: '複製連結',
@@ -76,6 +93,10 @@ export const Order: CollectionConfig = {
       label: '訂單金額',
       name: 'amount',
       type: 'number',
+      admin: {
+        condition: showAfterPendingPayment,
+        readOnly: true,
+      },
     },
     {
       label: '付款日期',
@@ -83,6 +104,7 @@ export const Order: CollectionConfig = {
       type: 'date',
       admin: {
         position: 'sidebar',
+        condition: showAfterPaymentSubmitted,
       }
     },
     {
@@ -91,18 +113,27 @@ export const Order: CollectionConfig = {
       type: 'date',
       admin: {
         position: 'sidebar',
+        condition: showWhenCompleted,
       }
     },
     {
       label: '匯款後五碼', 
       name: 'last5',
       type: 'text',
+      admin: {
+        condition: showAfterPaymentSubmitted,
+        readOnly: true,
+      },
     },
     {
       label: '匯款憑證', 
       name: 'proof',
       type: 'upload',
-      relationTo: 'media'
+      relationTo: 'media',
+      admin: {
+        condition: showAfterPaymentSubmitted,
+        readOnly: true,
+      },
     },
 
   ],
@@ -114,6 +145,22 @@ export const Order: CollectionConfig = {
   },
 
   hooks: {
+    beforeChange: [
+      ({ data, originalDoc }) => {
+        const nextStatus = data?.status
+        const prevStatus = originalDoc?.status
+        const alreadyHasShipmentDate = Boolean(data?.shipmentDate || originalDoc?.shipmentDate)
+
+        if (nextStatus === '已完成' && prevStatus !== '已完成' && !alreadyHasShipmentDate) {
+          return {
+            ...data,
+            shipmentDate: new Date().toISOString(),
+          }
+        }
+
+        return data
+      },
+    ],
     beforeRead: [
       async ({ doc, req: { user } }) => {
         return doc?.createdBy === user?.id ? doc : null

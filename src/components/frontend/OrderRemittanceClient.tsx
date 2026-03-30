@@ -16,6 +16,7 @@ export default function OrderRemittanceClient({
     name?: string
     location?: string
     date?: string
+    createdAt?: string
     status?: string | null
     amount?: number | null
     last5?: string | null
@@ -40,7 +41,21 @@ export default function OrderRemittanceClient({
 
   const isPaid =
     order?.status === '待確認付款' || order?.status === '已付款' || order?.status === '待出貨'
+  const isAwaitingShipment = order?.status === '待出貨'
   const userStatus = order?.status === '待出貨' ? '已確認付款' : (order?.status ?? '-')
+  const transferInfo = useMemo(() => {
+    const orderCreatedAt = order?.createdAt ? new Date(order.createdAt) : new Date()
+    const deadline = new Date(orderCreatedAt)
+    deadline.setDate(deadline.getDate() + 3)
+
+    return {
+      amountText: `NT$ ${order?.amount?.toLocaleString() ?? '-'}`,
+      bankCode: '822',
+      bankAccount: '1234-5678-9012-3456',
+      accountName: '花禮有限公司',
+      deadlineText: `${deadline.getFullYear()}/${String(deadline.getMonth() + 1).padStart(2, '0')}/${String(deadline.getDate()).padStart(2, '0')}`,
+    }
+  }, [order?.amount, order?.createdAt])
   const submitDisabled = useMemo(() => {
     if (isPaid) return true
     const last5Trim = last5.trim()
@@ -100,10 +115,13 @@ export default function OrderRemittanceClient({
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-2">
         <Card className="max-w-xl w-full">
-          <CardHeader>
-            {userStatus === '待出貨' ? <CardTitle>已送出匯款資訊</CardTitle> : <CardTitle>已完成匯款</CardTitle>}
-          </CardHeader>
           <CardContent>
+            <div className="mb-4 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+              {isAwaitingShipment
+                ? '已確認您的匯款，請耐心等待出貨通知。'
+                : '已收到您的匯款資料，請耐心等待工作人員確認匯款，確認後將更新訂單狀態。'}
+            </div>
+
             <div className="space-y-2 text-sm">
               <p className="font-medium">訂單資訊</p>
               <p>訂單金額: NT$ {order?.amount?.toLocaleString() ?? '-'}</p>
@@ -131,18 +149,16 @@ export default function OrderRemittanceClient({
               )}
             </div>
 
-            {userStatus === '待確認付款' ? <p className="mt-4 text-sm text-muted-foreground">
-              已收到您的匯款資料，請等待工作人員確認匯款，確認後將更新訂單狀態。
-            </p> : null}
-
-            <div className="mt-4 flex gap-2">
-              <Button variant="outline" onClick={() => router.push(`/order/${orderId}`)}>
-                返回訂單頁
-              </Button>
-              <Button variant="secondary" onClick={() => router.push(`/order/${orderId}/remittance`)}>
-                重新查看
-              </Button>
-            </div>
+            {!isAwaitingShipment ? (
+              <div className="mt-4 flex gap-2">
+                <Button variant="outline" onClick={() => router.push(`/order/${orderId}`)}>
+                  返回訂單頁
+                </Button>
+                <Button variant="secondary" onClick={() => router.push(`/order/${orderId}/remittance`)}>
+                  重新查看
+                </Button>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       </div>
@@ -152,10 +168,11 @@ export default function OrderRemittanceClient({
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-2">
       <Card className="max-w-xl w-full">
-        <CardHeader>
-          <CardTitle>匯款資訊</CardTitle>
-        </CardHeader>
         <CardContent>
+          <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            感謝您的訂購！請於下單後 3 天內完成轉帳並上傳匯款資訊，逾期未完成將自動取消訂單。
+          </div>
+
           <div className="text-sm text-muted-foreground space-y-2">
             <div>往生者: {order?.name ?? '-'}</div>
             <div>日期: {order?.date ?? '-'}</div>
@@ -177,6 +194,17 @@ export default function OrderRemittanceClient({
                 ))}
               </div>
             )}
+          </div>
+
+          <div className="mt-4 rounded-md border p-3 text-sm">
+            <p className="font-medium mb-2">轉帳資訊</p>
+            <div className="space-y-1">
+              <p>轉帳金額：{transferInfo.amountText}</p>
+              <p>銀行代號：{transferInfo.bankCode}</p>
+              <p>轉入銀行帳號：{transferInfo.bankAccount}</p>
+              <p>戶名：{transferInfo.accountName}</p>
+              <p className="text-amber-700">繳款期限：{transferInfo.deadlineText}</p>
+            </div>
           </div>
 
           <div className="mt-6 space-y-3">

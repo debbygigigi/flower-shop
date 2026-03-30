@@ -69,6 +69,7 @@ export async function POST(
         last5,
         proof: media?.id,
         status: '待確認付款',
+        paymentDate: new Date().toISOString(),
       } as any,
       overrideAccess: true,
     })
