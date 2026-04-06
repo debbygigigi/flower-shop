@@ -1,10 +1,15 @@
 'use client'
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+import { FrontendShell } from '@/components/frontend/FrontendShell'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 
 type CartItem = {
   flowerId: string
@@ -102,50 +107,58 @@ export default function OrderCartClient({ orderId }: { orderId: string }) {
     } finally {
       setLoading(false)
     }
-  }, [clearCart, items, orderId])
+  }, [clearCart, items, orderId, router])
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-2">
-      <div className="w-full max-w-4xl">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-semibold">購物車確認</h1>
-            <div className="flex gap-2">
-              <Button asChild variant="outline">
-                <a href={`/order/${orderId}`}>返回選花</a>
-              </Button>
+    <FrontendShell maxWidthClass="max-w-4xl">
+      <div className="space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">購物車確認</h1>
+            <p className="text-sm text-muted-foreground">調整數量或清空後再確認下單。</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline">
+              <Link href={`/order/${orderId}`}>返回選花</Link>
+            </Button>
             <Button variant="secondary" onClick={clearCart} disabled={items.length === 0}>
-              清空
+              清空購物車
             </Button>
           </div>
         </div>
 
+        <Separator />
+
         {items.length === 0 ? (
           <Card>
             <CardHeader>
-              <CardTitle>目前購物車是空的</CardTitle>
+              <CardTitle className="text-lg">購物車是空的</CardTitle>
+              <CardDescription>請回到上一頁選擇花品與數量。</CardDescription>
             </CardHeader>
             <CardContent>
-              <p>請先回到上一頁加入花。</p>
+              <Button asChild variant="outline">
+                <Link href={`/order/${orderId}`}>返回選花</Link>
+              </Button>
             </CardContent>
           </Card>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {items.map((it) => (
                 <Card key={it.flowerId}>
-                  <CardHeader>
+                  <CardHeader className="pb-3">
                     <CardTitle className="text-base">{it.name}</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-3">
                     {it.imageUrl ? (
                       <img
                         src={it.imageUrl}
                         alt={it.name}
-                        className="w-full h-40 object-cover rounded-xl mb-3"
+                        className="h-40 w-full rounded-lg border object-cover"
                       />
                     ) : null}
 
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-muted-foreground">數量</span>
                         <Input
@@ -157,7 +170,7 @@ export default function OrderCartClient({ orderId }: { orderId: string }) {
                         />
                       </div>
                       <div className="text-right text-sm">
-                        <div>單價: {it.price ?? '-'}</div>
+                        <div className="text-muted-foreground">單價: {it.price ?? '-'}</div>
                         <div className="font-semibold">小計: {(it.price ?? 0) * it.quantity}</div>
                       </div>
                     </div>
@@ -166,22 +179,32 @@ export default function OrderCartClient({ orderId }: { orderId: string }) {
               ))}
             </div>
 
-            <div className="mt-6 flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">合計（僅供參考）</div>
-              <div className="text-lg font-semibold">{total}</div>
-            </div>
-
-            {error ? <div className="mt-3 text-sm text-red-600">{error}</div> : null}
-
-            <div className="mt-4 flex gap-2 justify-end">
-              <Button onClick={onCompleteOrder} disabled={loading}>
-                {loading ? '處理中...' : '確認下單'}
-              </Button>
-            </div>
+            <Card>
+              <CardContent className="flex flex-col gap-4 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">合計（僅供參考）</p>
+                  <p className="text-2xl font-semibold tracking-tight">{total}</p>
+                </div>
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+                  {error ? (
+                    <Alert variant="destructive" className="[&>svg]:hidden [&_*]:pl-0">
+                      <AlertTitle>無法完成下單</AlertTitle>
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  ) : null}
+                  <Button
+                    className="w-full sm:w-auto"
+                    onClick={onCompleteOrder}
+                    disabled={loading}
+                  >
+                    {loading ? '處理中…' : '確認下單'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </>
         )}
       </div>
-    </div>
+    </FrontendShell>
   )
 }
-

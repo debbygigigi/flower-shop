@@ -4,8 +4,10 @@ import { getPayload } from 'payload'
 import React from 'react'
 import { fileURLToPath } from 'url'
 
+import { FrontendShell } from '@/components/frontend/FrontendShell'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import config from '@/payload.config'
-import './styles.scss'
 
 export default async function HomePage() {
   const headers = await getHeaders()
@@ -16,44 +18,46 @@ export default async function HomePage() {
   const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
 
   return (
-    <div className="home">
-      <div className="content">
-        <picture>
-          <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg" />
-          <Image
-            alt="Payload Logo"
-            height={65}
-            src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg"
-            width={65}
-          />
-        </picture>
-        {!user && <h1>Welcome to your new project.</h1>}
-        {user && <h1>Welcome back, {user.email}</h1>}
-        <div className="links">
+    <FrontendShell maxWidthClass="max-w-md" vertical="center">
+      <Card className="shadow-sm">
+        <CardHeader className="items-center text-center">
+          <picture>
+            <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg" />
+            <Image
+              alt="Payload Logo"
+              className="mx-auto"
+              height={65}
+              src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg"
+              width={65}
+            />
+          </picture>
+          <CardTitle className="text-2xl font-semibold tracking-tight">
+            {!user ? '歡迎使用' : `歡迎回來，${user.email}`}
+          </CardTitle>
+          <CardDescription>Payload + Next.js 前台範本，可由此進入後台或文件。</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
+            <a href={payloadConfig.routes.admin} rel="noopener noreferrer" target="_blank">
+              前往後台
+            </a>
+          </Button>
+          <Button asChild className="w-full sm:w-auto">
+            <a href="https://payloadcms.com/docs" rel="noopener noreferrer" target="_blank">
+              官方文件
+            </a>
+          </Button>
+        </CardContent>
+        <CardFooter className="flex flex-col gap-1 border-t pt-6 text-center text-sm text-muted-foreground">
+          <p className="m-0">編輯首頁請修改</p>
           <a
-            className="admin"
-            href={payloadConfig.routes.admin}
-            rel="noopener noreferrer"
-            target="_blank"
+            className="inline-flex w-fit max-w-full items-center justify-center rounded-md bg-secondary px-3 py-1 font-mono text-xs text-secondary-foreground no-underline hover:opacity-90"
+            href={fileURL}
           >
-            Go to admin panel
+            app/(frontend)/page.tsx
           </a>
-          <a
-            className="docs"
-            href="https://payloadcms.com/docs"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Documentation
-          </a>
-        </div>
-      </div>
-      <div className="footer">
-        <p>Update this page by editing</p>
-        <a className="codeLink" href={fileURL}>
-          <code>app/(frontend)/page.tsx</code>
-        </a>
-      </div>
-    </div>
+        </CardFooter>
+      </Card>
+    </FrontendShell>
   )
 }

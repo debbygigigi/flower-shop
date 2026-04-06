@@ -1,20 +1,20 @@
 import { headers as getHeaders } from 'next/headers.js'
 import { getPayload } from 'payload'
-import '../../styles.scss'
-
-import config from '@/payload.config'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { format } from 'date-fns'
-import { Button } from '@/components/ui/button'
-import OrderFlowersClient from '@/components/frontend/OrderFlowersClient'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+
+import { FrontendShell } from '@/components/frontend/FrontendShell'
+import OrderFlowersClient from '@/components/frontend/OrderFlowersClient'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import config from '@/payload.config'
 
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const headers = await getHeaders()
   const { id } = await params
 
-  console.log('id', id)
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
   const { user } = await payload.auth({ headers })
@@ -38,47 +38,55 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
   if (res?.status === '已取消') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-2">
-        <Card className="text-left mb-8 p-2 max-w-xl w-full">
+      <FrontendShell maxWidthClass="max-w-xl">
+        <Card>
           <CardHeader>
-            <CardTitle>此訂單已取消</CardTitle>
+            <CardTitle className="text-xl">此訂單已取消</CardTitle>
+            <CardDescription>以下為訂單基本資訊供您留存參考。</CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm font-bold">往生者: {name}</p>
-            <p className="text-sm">地點: {location}</p>
-            <p className="text-sm text-muted-foreground">日期: {format(date, 'yyyy/MM/dd')}</p>
+          <CardContent className="space-y-1 text-sm">
+            <p className="font-medium">往生者: {name}</p>
+            <p>地點: {location}</p>
+            <p className="text-muted-foreground">日期: {format(date, 'yyyy/MM/dd')}</p>
           </CardContent>
         </Card>
-      </div>
+      </FrontendShell>
     )
   }
 
-  // 已經完成下單/付款流程後，避免重複進到選花頁
   if (res?.status === '待付款' || res?.status === '待確認付款' || res?.status === '待出貨') {
     redirect(`/order/${id}/remittance`)
   }
 
-  console.log('res', flowers)
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-2">
-      {/* Header Info */}
-      <Card className="text-left mb-8 p-2">
-        <CardContent>
-          <p className="text-sm font-bold">往生者: {name}</p>
-          <p className="text-sm">地點: {location}</p>
-          <p className="text-sm text-muted-foreground">日期: {format(date, 'yyyy/MM/dd')}</p>
-        </CardContent>
-      </Card>
+    <FrontendShell maxWidthClass="max-w-4xl">
+      <div className="space-y-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">訂單資訊</CardTitle>
+            <CardDescription>請確認以下資訊後選擇致贈花品。</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-1 text-sm">
+            <p className="font-medium">往生者: {name}</p>
+            <p>地點: {location}</p>
+            <p className="text-muted-foreground">日期: {format(date, 'yyyy/MM/dd')}</p>
+          </CardContent>
+        </Card>
 
-      <div>請選擇要致贈的花</div>
-
-      {/* Flower Grid */}
-      <OrderFlowersClient orderId={id} flowers={flowers} />
-
-      <Button asChild variant="outline">
-        <Link href={`/order/${id}/cart`}>下一步</Link>
-      </Button>
-    </div>
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">選擇花品</h2>
+            <p className="text-sm text-muted-foreground">請輸入數量後加入購物車。</p>
+          </div>
+          <Separator />
+          <OrderFlowersClient orderId={id} flowers={flowers} />
+          <div className="flex justify-end pt-2">
+            <Button asChild>
+              <Link href={`/order/${id}/cart`}>下一步：確認購物車</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </FrontendShell>
   )
 }

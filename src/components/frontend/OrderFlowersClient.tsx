@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 
 type Flower = {
   id?: string
@@ -124,10 +125,13 @@ export default function OrderFlowersClient({
                 <img
                   src={imageUrl}
                   alt={flower?.name ?? ''}
-                  className="w-full h-48 object-cover rounded-xl"
+                  className="h-48 w-full rounded-lg border object-cover"
                 />
 
-                <div className="grid w-full max-w-sm items-center gap-3">
+                <div className="grid w-full max-w-sm items-center gap-2">
+                  <Label htmlFor={`quantity-${key}`} className="text-muted-foreground">
+                    數量
+                  </Label>
                   <Input
                     type="number"
                     id={`quantity-${key}`}
