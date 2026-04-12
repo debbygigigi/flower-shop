@@ -61,15 +61,12 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   return (
     <FrontendShell maxWidthClass="max-w-4xl">
       <div className="space-y-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">訂單資訊</CardTitle>
-            <CardDescription>請確認以下資訊後選擇致贈花品。</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-1 text-sm">
+        <Card className="rounded-none border-0 bg-[var(--surface-warm)] shadow-none">
+          <CardContent className="space-y-1.5 px-4 py-4 text-sm leading-relaxed sm:px-6 sm:text-base">
+            <p className="">禮儀公司：金麟生命</p>
             <p className="font-medium">往生者: {name}</p>
             <p>地點: {location}</p>
-            <p className="text-muted-foreground">日期: {format(date, 'yyyy/MM/dd')}</p>
+            <p className="">日期: {format(date, 'yyyy/MM/dd')}</p>
           </CardContent>
         </Card>
 

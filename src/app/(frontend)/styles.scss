@@ -5,13 +5,17 @@
 :root {
   --font-mono: 'Roboto Mono', monospace;
   --radius: 0.625rem;
+  /* 全站頁面背景：純白 */
   --background: oklch(1 0 0);
+  /* 禮儀公司／訂單摘要等區塊用：原先頁面米白底 */
+  --surface-warm: oklch(0.985 0.01 95);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  /* 按鈕：墨綠 */
+  --primary: oklch(0.38 0.07 155);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -20,6 +24,7 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -55,7 +60,8 @@ body,
 }
 
 body {
-  font-family: system-ui;
+  /* 字體：明體（Serif） */
+  font-family: ui-serif, 'Noto Serif TC', 'Songti TC', 'PMingLiU', 'MingLiU', serif;
   font-size: 18px;
   line-height: 32px;
 
@@ -212,6 +218,7 @@ svg {
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
@@ -232,9 +239,24 @@ svg {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+    /*
+     * 勿使用 @apply outline-ring/50：ring 色為 var(--ring)（完整 oklch）時，
+     * Tailwind 無法對其做 /50 透明度運算，編譯會拋錯（Next 顯示 Error evaluating Node.js code）。
+     */
+    outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/*
+ * 備援：若 Tailwind theme 與 CSS 變數格式不一致，仍保證次要文字色有效。
+ * （正式仍以 tailwind.config.js 的 var(--token) 對應 oklch 為準。）
+ */
+@layer utilities {
+  .text-muted-foreground {
+    color: var(--muted-foreground);
   }
 }

@@ -10,6 +10,7 @@ type Flower = {
   id?: string
   name?: string
   price?: number
+  description?: string | null
   image?: any
 }
 
@@ -106,7 +107,7 @@ export default function OrderFlowersClient({
   )
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl w-full">
+    <div className="grid w-full max-w-4xl grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
       {flowers.map((flower, index) => {
         const key = keys[index]
         const quantity = quantities[key] ?? 0
@@ -116,44 +117,56 @@ export default function OrderFlowersClient({
             : (flower as any)?.image?.url ?? ''
 
         return (
-          <Card key={key}>
-            <CardHeader>
-              <CardTitle className="text-center text-base">{flower.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3">
+          <Card key={key} className="overflow-hidden border-0 bg-transparent shadow-none">
+            <CardContent className="px-0">
+              <div className="aspect-square w-full overflow-hidden rounded-lg bg-muted/40">
                 <img
                   src={imageUrl}
                   alt={flower?.name ?? ''}
-                  className="h-48 w-full rounded-lg border object-cover"
+                  className="h-full w-full object-cover"
                 />
+              </div>
 
-                <div className="grid w-full max-w-sm items-center gap-2">
-                  <Label htmlFor={`quantity-${key}`} className="text-muted-foreground">
-                    數量
-                  </Label>
-                  <Input
-                    type="number"
-                    id={`quantity-${key}`}
-                    placeholder="請輸入數量"
-                    value={quantity}
-                    min={0}
-                    onChange={(e) => onQuantityChange(key, e.target.value)}
-                  />
+              <div className="mt-2 space-y-2 px-1 sm:mt-3 sm:space-y-3 sm:px-2">
+                <div className="space-y-0.5">
+                  <CardTitle className="text-sm font-semibold leading-snug sm:text-base">
+                    {flower.name}
+                  </CardTitle>
+                  <div className="text-xs font-medium text-foreground/80 sm:text-sm">
+                    NT$ {(Number(flower.price) || 0).toLocaleString()}
+                  </div>
+                  {flower.description ? (
+                    <div className="line-clamp-2 text-[11px] leading-snug text-muted-foreground sm:text-xs">
+                      {flower.description}
+                    </div>
+                  ) : null}
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="flex-grow-0"
-                  onClick={() => onAddToCart(flower, key)}
-                  disabled={(quantities[key] ?? 0) <= 0}
-                >
-                  加入購物車
-                </Button>
+                <div className="grid gap-2">
+                  <div className="grid items-center gap-1.5">
+                    <Input
+                      type="number"
+                      id={`quantity-${key}`}
+                      placeholder="0"
+                      value={quantity}
+                      min={0}
+                      onChange={(e) => onQuantityChange(key, e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
 
-                {addedId === (flower.id ?? key) && (
-                  <div className="text-xs text-muted-foreground">已加入購物車</div>
-                )}
+                  <Button
+                    className="h-9 w-full text-xs sm:text-sm"
+                    onClick={() => onAddToCart(flower, key)}
+                    disabled={(quantities[key] ?? 0) <= 0}
+                  >
+                    加入購物車
+                  </Button>
+
+                  {addedId === (flower.id ?? key) && (
+                    <div className="text-[11px] text-muted-foreground sm:text-xs">已加入購物車</div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
