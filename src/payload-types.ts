@@ -179,7 +179,16 @@ export interface Order {
   buyerName?: string | null;
   buyerPhone?: string | null;
   createdBy?: (string | null) | User;
-  flowers?: (string | Flower)[] | null;
+  /**
+   * 每列一種花品與購買數量（同一花品請合併為一列）。
+   */
+  orderItems?:
+    | {
+        flower: string | Flower;
+        quantity: number;
+        id?: string | null;
+      }[]
+    | null;
   status?: ('待下單' | '待付款' | '待確認付款' | '待出貨' | '已完成' | '已取消') | null;
   amount?: number | null;
   paymentDate?: string | null;
@@ -337,7 +346,13 @@ export interface OrdersSelect<T extends boolean = true> {
   buyerName?: T;
   buyerPhone?: T;
   createdBy?: T;
-  flowers?: T;
+  orderItems?:
+    | T
+    | {
+        flower?: T;
+        quantity?: T;
+        id?: T;
+      };
   status?: T;
   amount?: T;
   paymentDate?: T;

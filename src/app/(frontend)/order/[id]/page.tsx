@@ -3,12 +3,13 @@ import { getPayload } from 'payload'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Info } from 'lucide-react'
 
 import { FrontendShell } from '@/components/frontend/FrontendShell'
 import OrderFlowersClient from '@/components/frontend/OrderFlowersClient'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import config from '@/payload.config'
 
@@ -27,30 +28,37 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     user,
   })
 
-  const flowersDocs = await payload.find({
-    collection: 'flowers',
-    overrideAccess: true,
-    user,
-  })
-
-  const flowers = flowersDocs.docs
-
   const { name, location, date } = res
 
   if (res?.status === '已取消') {
     return (
-      <FrontendShell maxWidthClass="max-w-xl">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">此訂單已取消</CardTitle>
-            <CardDescription>以下為訂單基本資訊供您留存參考。</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-1 text-sm">
-            <p className="font-medium">往生者: {name}</p>
-            <p>地點: {location}</p>
-            <p className="text-muted-foreground">日期: {format(date, 'yyyy/MM/dd')}</p>
-          </CardContent>
-        </Card>
+      <FrontendShell maxWidthClass="max-w-4xl">
+        <div className="space-y-8">
+          <div className="space-y-4 p-1">
+            <Alert variant="default">
+              <Info aria-hidden />
+              <AlertTitle>此訂單已取消</AlertTitle>
+              <AlertDescription>
+                訂單已無法繼續選購或付款，以下為訂單明細供您留存參考。
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <section className="space-y-4 p-1" aria-labelledby="order-cancelled-detail-heading">
+            <h2
+              id="order-cancelled-detail-heading"
+              className="text-sm font-semibold tracking-tight"
+            >
+              訂單明細
+            </h2>
+            <div className="space-y-1 text-sm text-muted-foreground">
+              <p>往生者: {name ?? '-'}</p>
+              <p>日期: {date ? format(new Date(date as string), 'yyyy/MM/dd') : '-'}</p>
+              <p>地點: {location ?? '-'}</p>
+              <p className="font-medium text-foreground">訂單狀態: 已取消</p>
+            </div>
+          </section>
+        </div>
       </FrontendShell>
     )
   }
@@ -58,6 +66,13 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   if (res?.status === '待付款' || res?.status === '待確認付款' || res?.status === '待出貨') {
     redirect(`/order/${id}/remittance`)
   }
+
+  const flowersDocs = await payload.find({
+    collection: 'flowers',
+    overrideAccess: true,
+    user,
+  })
+  const flowers = flowersDocs.docs
 
   return (
     <FrontendShell maxWidthClass="max-w-4xl">

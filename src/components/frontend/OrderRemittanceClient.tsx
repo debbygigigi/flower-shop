@@ -1,6 +1,14 @@
 'use client'
 
 import React, { useCallback, useMemo, useState } from 'react'
+
+/** 固定語系，避免 Node SSR 與瀏覽器預設語系不同造成 hydration 不一致 */
+const MONEY_LOCALE = 'zh-TW' as const
+
+function formatTwd(amount: number | null | undefined): string {
+  if (amount == null || !Number.isFinite(Number(amount))) return '-'
+  return Number(amount).toLocaleString(MONEY_LOCALE)
+}
 import { Info, TriangleAlert } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -25,6 +33,7 @@ export default function OrderRemittanceClient({
     amount?: number | null
     last5?: string | null
     proof?: string | null
+    orderItems?: Array<{ flower?: string | { id?: string }; quantity?: number }> | null
     flowers?: string[] | null
   }
   orderedItems: Array<{
@@ -48,16 +57,22 @@ export default function OrderRemittanceClient({
   const isAwaitingShipment = order?.status === '待出貨'
   const userStatus = order?.status === '待出貨' ? '已確認付款' : (order?.status ?? '-')
   const transferInfo = useMemo(() => {
-    const orderCreatedAt = order?.createdAt ? new Date(order.createdAt) : new Date()
-    const deadline = new Date(orderCreatedAt)
-    deadline.setDate(deadline.getDate() + 3)
+    const amountText = `NT$ ${formatTwd(order?.amount ?? null)}`
+
+    const created = order?.createdAt ? new Date(order.createdAt) : null
+    let deadlineText = '—'
+    if (created && !Number.isNaN(created.getTime())) {
+      const deadline = new Date(created)
+      deadline.setDate(deadline.getDate() + 3)
+      deadlineText = `${deadline.getFullYear()}/${String(deadline.getMonth() + 1).padStart(2, '0')}/${String(deadline.getDate()).padStart(2, '0')}`
+    }
 
     return {
-      amountText: `NT$ ${order?.amount?.toLocaleString() ?? '-'}`,
+      amountText,
       bankCode: '822',
       bankAccount: '1234-5678-9012-3456',
       accountName: '花禮有限公司',
-      deadlineText: `${deadline.getFullYear()}/${String(deadline.getMonth() + 1).padStart(2, '0')}/${String(deadline.getDate()).padStart(2, '0')}`,
+      deadlineText,
     }
   }, [order?.amount, order?.createdAt])
   const submitDisabled = useMemo(() => {
@@ -145,7 +160,7 @@ export default function OrderRemittanceClient({
               <p>日期: {order?.date ?? '-'}</p>
               <p>地點: {order?.location ?? '-'}</p>
               <p className="font-medium text-foreground">
-                訂單金額: NT$ {order?.amount?.toLocaleString() ?? '-'}
+                訂單金額: NT$ {formatTwd(order?.amount ?? null)}
               </p>
               <p>訂單狀態: {userStatus}</p>
               <p>匯款後五碼: {last5 || order?.last5 || '-'}</p>
@@ -165,7 +180,7 @@ export default function OrderRemittanceClient({
                       <span>
                         {item.name} × {item.quantity}
                       </span>
-                      <span className="tabular-nums">NT$ {item.subtotal.toLocaleString()}</span>
+                      <span className="tabular-nums">NT$ {formatTwd(item.subtotal)}</span>
                     </li>
                   ))}
                 </ul>
@@ -228,7 +243,7 @@ export default function OrderRemittanceClient({
             <p>日期: {order?.date ?? '-'}</p>
             <p>地點: {order?.location ?? '-'}</p>
             <p className="font-medium text-foreground">
-                訂單金額: NT$ {order?.amount?.toLocaleString() ?? '-'}
+                訂單金額: NT$ {formatTwd(order?.amount ?? null)}
               </p>
           </div>
           <div>
@@ -245,7 +260,7 @@ export default function OrderRemittanceClient({
                     <span>
                       {item.name} × {item.quantity}
                     </span>
-                    <span className="tabular-nums">NT$ {item.subtotal.toLocaleString()}</span>
+                    <span className="tabular-nums">NT$ {formatTwd(item.subtotal)}</span>
                   </li>
                 ))}
               </ul>

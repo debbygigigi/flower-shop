@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 
+import { SKIP_ORDER_STATUS_TRANSITION } from '@/collections/Order'
 import payloadConfig from '@/payload.config'
 
 export async function POST(_req: Request, { params }: { params: { id: string } }) {
@@ -41,6 +42,9 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
         status: '已取消',
       },
       overrideAccess: true,
+      context: {
+        [SKIP_ORDER_STATUS_TRANSITION]: true,
+      },
     })
 
     return Response.json({ ok: true })

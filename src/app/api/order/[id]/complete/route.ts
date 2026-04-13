@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 
+import { SKIP_ORDER_STATUS_TRANSITION } from '@/collections/Order'
 import payloadConfig from '@/payload.config'
 
 export async function POST(
@@ -35,10 +36,6 @@ export async function POST(
     if (items.length === 0) {
       return Response.json({ ok: false, error: '購物車為空' }, { status: 400 })
     }
-
-    const expandedFlowerIds = items.flatMap((it) =>
-      Array.from({ length: it.quantity }, () => it.flowerId),
-    )
 
     const payloadConfigResolved = await payloadConfig
     const payload = await getPayload({ config: payloadConfigResolved })
@@ -80,13 +77,19 @@ export async function POST(
       collection: 'orders',
       id: orderId,
       data: {
-        flowers: expandedFlowerIds,
+        orderItems: items.map((it) => ({
+          flower: it.flowerId,
+          quantity: it.quantity,
+        })),
         status: '待付款',
         amount,
         buyerName,
         buyerPhone,
       },
       overrideAccess: true,
+      context: {
+        [SKIP_ORDER_STATUS_TRANSITION]: true,
+      },
     })
 
     return Response.json({ ok: true })
