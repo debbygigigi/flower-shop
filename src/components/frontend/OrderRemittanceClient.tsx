@@ -7,10 +7,8 @@ import { useRouter } from 'next/navigation'
 import { FrontendShell } from '@/components/frontend/FrontendShell'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 
 export default function OrderRemittanceClient({
   orderId,
@@ -119,36 +117,40 @@ export default function OrderRemittanceClient({
 
   if (success || isPaid) {
     return (
-      <FrontendShell maxWidthClass="max-w-xl">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">匯款狀態</CardTitle>
-            <CardDescription>訂單摘要與您提交的資訊。</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <Alert variant="info">
-              <Info aria-hidden />
-              <AlertTitle>處理中</AlertTitle>
-              <AlertDescription>
-                {isAwaitingShipment
-                  ? '已確認您的匯款，請耐心等待出貨通知。'
-                  : '已收到您的匯款資料，請耐心等待工作人員確認匯款，確認後將更新訂單狀態。'}
-              </AlertDescription>
-            </Alert>
+      <FrontendShell maxWidthClass="max-w-4xl">
+        <div className="space-y-8">
+          <Alert variant="info">
+            <Info aria-hidden />
+            <AlertTitle>{
+              isAwaitingShipment
+                ? '訂單完成'
+                : '確認匯款中'
+            }</AlertTitle>
+            <AlertDescription>
+              {isAwaitingShipment
+                ? '感謝您的訂購，我們已收到您的匯款資訊。'
+                : '已收到您的匯款資料，請耐心等待工作人員確認匯款，確認後將更新訂單狀態。'}
+            </AlertDescription>
+          </Alert>
 
-            <div className="space-y-2 text-sm">
-              <p className="font-medium">訂單資訊</p>
-              <p>訂單金額: NT$ {order?.amount?.toLocaleString() ?? '-'}</p>
+          <section className="space-y-4 p-1" aria-labelledby="remit-done-order-heading">
+            <h2
+              id="remit-done-order-heading"
+              className="text-sm font-semibold tracking-tight"
+            >
+              訂單明細
+            </h2>
+            <div className="space-y-1 text-sm text-muted-foreground">
               <p>往生者: {order?.name ?? '-'}</p>
               <p>日期: {order?.date ?? '-'}</p>
               <p>地點: {order?.location ?? '-'}</p>
+              <p className="font-medium text-foreground">
+                訂單金額: NT$ {order?.amount?.toLocaleString() ?? '-'}
+              </p>
               <p>訂單狀態: {userStatus}</p>
               <p>匯款後五碼: {last5 || order?.last5 || '-'}</p>
               <p>匯款憑證: {selectedFile?.name ?? '已上傳'}</p>
             </div>
-
-            <Separator />
-
             <div>
               <p className="mb-2 text-sm font-medium">訂購花品</p>
               {orderedItems.length === 0 ? (
@@ -169,49 +171,66 @@ export default function OrderRemittanceClient({
                 </ul>
               )}
             </div>
-
-            {!isAwaitingShipment ? (
-              <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                <Button variant="outline" onClick={() => router.push(`/order/${orderId}`)}>
-                  返回訂單頁
-                </Button>
-                <Button variant="secondary" onClick={() => router.push(`/order/${orderId}/remittance`)}>
-                  重新查看
-                </Button>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
+          </section>
+        </div>
       </FrontendShell>
     )
   }
 
   return (
-    <FrontendShell maxWidthClass="max-w-xl">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">匯款與上傳憑證</CardTitle>
-          <CardDescription>請於期限內完成轉帳並填寫下列資訊。</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+    <FrontendShell maxWidthClass="max-w-4xl">
+      <div className="space-y-8">
+        {/* <div>
+          <h1 className="text-2xl font-semibold tracking-tight">謝謝您的訂購</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            尚未完成付款，請於期限內完成轉帳並提交匯款資訊。
+          </p>
+        </div> */}
+
+        <div className="space-y-4 p-1">
           <Alert variant="warning">
             <TriangleAlert aria-hidden />
-            <AlertTitle>繳款期限</AlertTitle>
+            <AlertTitle>尚未完成付款</AlertTitle>
             <AlertDescription>
-              感謝您的訂購！請於下單後 3 天內完成轉帳並上傳匯款資訊，逾期未完成將自動取消訂單。
+              請於下單後 3 天內完成轉帳並上傳匯款資訊，逾期未完成將自動取消訂單。
             </AlertDescription>
           </Alert>
+        </div>
 
+        <section className="space-y-4 p-1" aria-labelledby="remit-transfer-heading">
+          <h2
+            id="remit-transfer-heading"
+            className="text-sm font-semibold tracking-tight"
+          >
+            轉帳資訊
+          </h2>
+          
+          <div className="space-y-1 text-sm">
+            <p>轉帳金額：{transferInfo.amountText}</p>
+            <p>銀行代號：{transferInfo.bankCode}</p>
+            <p>轉入銀行帳號：{transferInfo.bankAccount}</p>
+            <p>戶名：{transferInfo.accountName}</p>
+            <p className="font-medium text-amber-800 dark:text-amber-200">
+              繳款期限：{transferInfo.deadlineText}
+            </p>
+          </div>
+        </section>
+
+        <section className="space-y-4 p-1" aria-labelledby="remit-order-heading">
+          <h2
+            id="remit-order-heading"
+            className="text-sm font-semibold tracking-tight"
+          >
+            訂單明細
+          </h2>
           <div className="space-y-1 text-sm text-muted-foreground">
-            <p className="font-medium text-foreground">訂單摘要</p>
             <p>往生者: {order?.name ?? '-'}</p>
             <p>日期: {order?.date ?? '-'}</p>
             <p>地點: {order?.location ?? '-'}</p>
-            <p className="text-foreground">訂單金額: NT$ {order?.amount?.toLocaleString() ?? '-'}</p>
+            <p className="font-medium text-foreground">
+                訂單金額: NT$ {order?.amount?.toLocaleString() ?? '-'}
+              </p>
           </div>
-
-          <Separator />
-
           <div>
             <p className="mb-2 text-sm font-medium">訂購花品</p>
             {orderedItems.length === 0 ? (
@@ -232,22 +251,15 @@ export default function OrderRemittanceClient({
               </ul>
             )}
           </div>
+        </section>
 
-          <Card className="border-dashed shadow-none">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">轉帳資訊</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1 text-sm">
-              <p>轉帳金額：{transferInfo.amountText}</p>
-              <p>銀行代號：{transferInfo.bankCode}</p>
-              <p>轉入銀行帳號：{transferInfo.bankAccount}</p>
-              <p>戶名：{transferInfo.accountName}</p>
-              <p className="font-medium text-amber-800 dark:text-amber-200">
-                繳款期限：{transferInfo.deadlineText}
-              </p>
-            </CardContent>
-          </Card>
-
+        <section className="space-y-4 p-1" aria-labelledby="remit-form-heading">
+          <h2
+            id="remit-form-heading"
+            className="text-sm font-semibold tracking-tight"
+          >
+            匯款回報
+          </h2>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor={`remit-last5-${orderId}`}>匯款後五碼</Label>
@@ -290,11 +302,11 @@ export default function OrderRemittanceClient({
               取消訂單
             </Button>
             <Button onClick={onSubmit} disabled={loading || submitDisabled}>
-              {loading ? '處理中…' : '送出匯款資訊'}
+              {loading ? '處理中…' : '上傳匯款資訊'}
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </section>
+      </div>
     </FrontendShell>
   )
 }

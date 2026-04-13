@@ -10,6 +10,12 @@ export async function POST(
 
   try {
     const body = await req.json().catch(() => null)
+    const buyerName = String(body?.buyerName ?? '').trim()
+    const buyerPhone = String(body?.buyerPhone ?? '').trim()
+    if (!buyerName || !buyerPhone) {
+      return Response.json({ ok: false, error: '請填寫訂購人姓名與電話' }, { status: 400 })
+    }
+
     const rawItems = Array.isArray(body?.items) ? body.items : []
 
     const items = rawItems
@@ -77,6 +83,8 @@ export async function POST(
         flowers: expandedFlowerIds,
         status: '待付款',
         amount,
+        buyerName,
+        buyerPhone,
       },
       overrideAccess: true,
     })

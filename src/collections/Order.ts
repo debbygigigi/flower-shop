@@ -44,6 +44,22 @@ export const Order: CollectionConfig = {
       required: true,
     },
     {
+      label: '訂購人姓名',
+      name: 'buyerName',
+      type: 'text',
+      admin: {
+        condition: showAfterPendingPayment,
+      },
+    },
+    {
+      label: '訂購人電話',
+      name: 'buyerPhone',
+      type: 'text',
+      admin: {
+        condition: showAfterPendingPayment,
+      },
+    },
+    {
       label: '建立者',
       name: 'createdBy',
       type: 'relationship',

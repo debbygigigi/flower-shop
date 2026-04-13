@@ -176,6 +176,8 @@ export interface Order {
   name: string;
   date: string;
   location: string;
+  buyerName?: string | null;
+  buyerPhone?: string | null;
   createdBy?: (string | null) | User;
   flowers?: (string | Flower)[] | null;
   status?: ('待下單' | '待付款' | '待確認付款' | '待出貨' | '已完成' | '已取消') | null;
@@ -332,6 +334,8 @@ export interface OrdersSelect<T extends boolean = true> {
   name?: T;
   date?: T;
   location?: T;
+  buyerName?: T;
+  buyerPhone?: T;
   createdBy?: T;
   flowers?: T;
   status?: T;

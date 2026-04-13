@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { ArrowRight } from 'lucide-react'
 
 import { FrontendShell } from '@/components/frontend/FrontendShell'
 import OrderFlowersClient from '@/components/frontend/OrderFlowersClient'
@@ -79,7 +80,10 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           <OrderFlowersClient orderId={id} flowers={flowers} />
           <div className="flex justify-end pt-2">
             <Button asChild>
-              <Link href={`/order/${id}/cart`}>下一步：確認購物車</Link>
+              <Link href={`/order/${id}/cart`} className="inline-flex items-center gap-2">
+                前往結帳
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
             </Button>
           </div>
         </div>

@@ -21,12 +21,15 @@ export function FrontendShell({
 }) {
   return (
     <div className={cn('min-h-svh bg-background', className)}>
-      <header className="bg-amber-200/90 text-amber-950">
+      <header
+        className={cn('text-amber-950')}
+        style={{
+          /* 同色 rgb(69 26 3) 降低透明度，比實線柔和 */
+          borderBottom: '1px solid rgb(69 26 3 / 0.22)',
+        }}
+      >
         <div className={cn('mx-auto w-full px-4 py-3', maxWidthClass)}>
           <div className="flex items-center justify-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-amber-950 text-amber-50">
-              <span className="text-sm font-semibold">{brandName.slice(0, 1)}</span>
-            </div>
             <div className="leading-tight text-center">
               <div className="text-base font-semibold tracking-tight">{brandName}</div>
               <div className="text-[11px] text-amber-900/80 sm:text-xs">告別式花禮代訂服務</div>
@@ -37,18 +40,13 @@ export function FrontendShell({
 
       <div
         className={cn(
-          'mx-auto w-full px-4 py-6 md:py-10',
+          'mx-auto w-full px-3 py-6 md:py-10',
           maxWidthClass,
           vertical === 'center' &&
             'flex min-h-[calc(100svh-120px)] flex-col justify-center py-10 md:min-h-0 md:py-16',
           innerClassName,
         )}
       >
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold tracking-tight text-center sm:text-2xl">
-            告別式花禮代訂服務
-          </h1>
-        </div>
         {children}
       </div>
 
