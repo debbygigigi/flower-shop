@@ -210,6 +210,10 @@ export interface Order {
   buyerPhone?: string | null;
   createdBy?: (string | null) | User;
   /**
+   * 前台匯款頁顯示此公司的匯款資訊。Partner 建立訂單時會自動帶入帳號所屬公司。
+   */
+  company?: (string | null) | Company;
+  /**
    * 每列一種花品與購買數量（同一花品請合併為一列）。
    */
   orderItems?:
@@ -400,6 +404,7 @@ export interface OrdersSelect<T extends boolean = true> {
   buyerName?: T;
   buyerPhone?: T;
   createdBy?: T;
+  company?: T;
   orderItems?:
     | T
     | {

@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { getOrderCompanyName } from '@/lib/companyRemittance'
 import config from '@/payload.config'
 
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
@@ -67,11 +68,14 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     redirect(`/order/${id}/remittance`)
   }
 
-  const flowersDocs = await payload.find({
-    collection: 'flowers',
-    overrideAccess: true,
-    user,
-  })
+  const [flowersDocs, funeralCompanyName] = await Promise.all([
+    payload.find({
+      collection: 'flowers',
+      overrideAccess: true,
+      user,
+    }),
+    getOrderCompanyName(payload, res as unknown as Record<string, unknown>),
+  ])
   const flowers = flowersDocs.docs
 
   return (
@@ -79,7 +83,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <div className="space-y-8">
         <Card className="rounded-none border-0 bg-[var(--surface-warm)] shadow-none">
           <CardContent className="space-y-1.5 px-4 py-4 text-sm leading-relaxed sm:px-6 sm:text-base">
-            <p className="">禮儀公司：金麟生命</p>
+            <p className="">禮儀公司：{funeralCompanyName}</p>
             <p className="font-medium">往生者: {name}</p>
             <p>地點: {location}</p>
             <p className="">日期: {format(date, 'yyyy/MM/dd')}</p>

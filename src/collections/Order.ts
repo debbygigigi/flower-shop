@@ -118,6 +118,16 @@ export const Order: CollectionConfig = {
       }
     },
     {
+      label: '禮儀公司',
+      name: 'company',
+      type: 'relationship',
+      relationTo: 'companies',
+      admin: {
+        position: 'sidebar',
+        description: '前台匯款頁顯示此公司的匯款資訊。Partner 建立訂單時會自動帶入帳號所屬公司。',
+      },
+    },
+    {
       label: '訂購明細',
       name: 'orderItems',
       type: 'array',
@@ -252,6 +262,33 @@ export const Order: CollectionConfig = {
 
   hooks: {
     beforeChange: [
+      async ({ data, operation, req }) => {
+        if (operation !== 'create') return data
+        const row = data as { company?: unknown }
+        if (row.company) return data
+
+        const userId = req.user?.id
+        if (!userId) return data
+
+        const creator = await req.payload.findByID({
+          collection: 'users',
+          id: userId,
+          depth: 0,
+          overrideAccess: true,
+        })
+
+        const role = (creator as { role?: unknown } | null)?.role
+        const isPartner = Array.isArray(role) ? role.includes('partner') : role === 'partner'
+        if (!isPartner) return data
+
+        const co = (creator as { company?: string | { id: string } | null }).company
+        if (!co) return data
+
+        const companyId =
+          typeof co === 'object' && co && 'id' in co ? String((co as { id: string }).id) : String(co)
+
+        return { ...data, company: companyId }
+      },
       ({ data, originalDoc, operation, req }) => {
         const ctx = req.context as Record<string, unknown> | undefined
         if (ctx?.[SKIP_ORDER_STATUS_TRANSITION] === true) {
@@ -343,7 +380,10 @@ export const Order: CollectionConfig = {
       async ({ doc, req: { user } }) => {
         if (!user) return null
         if (isAdminUser(user)) return doc
-        return doc?.createdBy === user?.id ? doc : null
+        const cb = doc?.createdBy
+        const createdById =
+          typeof cb === 'object' && cb && 'id' in cb ? String((cb as { id: string }).id) : cb
+        return createdById === user?.id ? doc : null
       },
     ],
   },

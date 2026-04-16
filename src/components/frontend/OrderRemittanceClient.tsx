@@ -22,6 +22,7 @@ export default function OrderRemittanceClient({
   orderId,
   order,
   orderedItems,
+  companyRemittance,
 }: {
   orderId: string
   order: {
@@ -43,6 +44,11 @@ export default function OrderRemittanceClient({
     price: number
     subtotal: number
   }>
+  companyRemittance: {
+    bankCode: string
+    bankAccount: string
+    accountName: string
+  }
 }) {
   const router = useRouter()
 
@@ -69,12 +75,12 @@ export default function OrderRemittanceClient({
 
     return {
       amountText,
-      bankCode: '822',
-      bankAccount: '1234-5678-9012-3456',
-      accountName: '花禮有限公司',
+      bankCode: companyRemittance.bankCode,
+      bankAccount: companyRemittance.bankAccount,
+      accountName: companyRemittance.accountName,
       deadlineText,
     }
-  }, [order?.amount, order?.createdAt])
+  }, [order?.amount, order?.createdAt, companyRemittance])
   const submitDisabled = useMemo(() => {
     if (isPaid) return true
     const last5Trim = last5.trim()

@@ -5,6 +5,7 @@ import type { ComponentProps } from 'react'
 
 import OrderRemittanceClient from '@/components/frontend/OrderRemittanceClient'
 import { buildOrderedItems } from '@/lib/orderOrderedItems'
+import { getCompanyRemittanceDisplay } from '@/lib/companyRemittance'
 import config from '@/payload.config'
 
 export default async function RemittancePage({ params }: { params: Promise<{ id: string }> }) {
@@ -34,11 +35,17 @@ export default async function RemittancePage({ params }: { params: Promise<{ id:
 
   const orderedItems = await buildOrderedItems(payload, order, user)
 
+  const companyRemittance = await getCompanyRemittanceDisplay(
+    payload,
+    order as unknown as Record<string, unknown>,
+  )
+
   return (
     <OrderRemittanceClient
       orderId={id}
       order={order as unknown as ComponentProps<typeof OrderRemittanceClient>['order']}
       orderedItems={orderedItems}
+      companyRemittance={companyRemittance}
     />
   )
 }
