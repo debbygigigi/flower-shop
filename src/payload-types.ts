@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    companies: Company;
     orders: Order;
     flowers: Flower;
     'payload-kv': PayloadKv;
@@ -80,6 +81,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    companies: CompaniesSelect<false> | CompaniesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     flowers: FlowersSelect<false> | FlowersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -128,7 +130,8 @@ export interface UserAuthOperations {
 export interface User {
   id: string;
   name?: string | null;
-  role?: ('admin' | 'vendor') | null;
+  role?: ('admin' | 'partner') | null;
+  company?: (string | null) | Company;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -147,6 +150,33 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "companies".
+ */
+export interface Company {
+  id: string;
+  name: string;
+  /**
+   * 用於專屬連結與識別（例如：jinlin）。
+   */
+  slug: string;
+  /**
+   * 建議上傳透明底 PNG 或方形圖片。
+   */
+  logo?: (string | null) | Media;
+  remittance?: {
+    bankCode?: string | null;
+    bankAccount?: string | null;
+    accountName?: string | null;
+    /**
+     * 例如：匯款完成後請上傳匯款憑證、後五碼等。
+     */
+    note?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -244,6 +274,10 @@ export interface PayloadLockedDocument {
         value: string | Media;
       } | null)
     | ({
+        relationTo: 'companies';
+        value: string | Company;
+      } | null)
+    | ({
         relationTo: 'orders';
         value: string | Order;
       } | null)
@@ -300,6 +334,7 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
+  company?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -334,6 +369,25 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "companies_select".
+ */
+export interface CompaniesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  logo?: T;
+  remittance?:
+    | T
+    | {
+        bankCode?: T;
+        bankAccount?: T;
+        accountName?: T;
+        note?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -82,6 +82,8 @@ export default function OrderRemittanceClient({
     return !last5Valid || !selectedFile
   }, [isPaid, last5, selectedFile])
 
+  const isCompleted = order?.status === '已完成'
+
   const onCancelOrder = useCallback(async () => {
     if (!window.confirm('確定要取消此訂單嗎？')) return
     setLoading(true)
@@ -130,20 +132,20 @@ export default function OrderRemittanceClient({
     }
   }, [orderId, last5, selectedFile, submitDisabled])
 
-  if (success || isPaid) {
+  if (success || isPaid || isCompleted) {
     return (
       <FrontendShell maxWidthClass="max-w-4xl">
         <div className="space-y-8">
           <Alert variant="info">
             <Info aria-hidden />
             <AlertTitle>{
-              isAwaitingShipment
+              isCompleted
                 ? '訂單完成'
                 : '確認匯款中'
             }</AlertTitle>
             <AlertDescription>
-              {isAwaitingShipment
-                ? '感謝您的訂購，我們已收到您的匯款資訊。'
+              {isCompleted
+                ? '感謝您的訂購，訂單已完成。'
                 : '已收到您的匯款資料，請耐心等待工作人員確認匯款，確認後將更新訂單狀態。'}
             </AlertDescription>
           </Alert>

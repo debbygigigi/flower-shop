@@ -12,6 +12,7 @@ import { Media } from './collections/Media'
 import { Order } from './collections/Order'
 import { Users } from './collections/Users'
 import { Flower } from './collections/Flower'
+import { Companies } from './collections/Companies'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -23,7 +24,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Order, Flower],
+  collections: [Users, Media, Companies, Order, Flower],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -43,8 +44,8 @@ export default buildConfig({
       config: {
         endpoint: process.env.S3_ENDPOINT,
         credentials: {
-          accessKeyId: process.env.S3_ACCESS_KEY_ID,
-          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+          accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
         },
         region: 'auto',
         forcePathStyle: true,

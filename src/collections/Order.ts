@@ -1,10 +1,34 @@
 import type { CollectionConfig, Condition } from 'payload'
 import { APIError } from 'payload'
 
-import { adminOrOwner } from './Users/access'
+import type { Access } from 'payload'
 
 /** 系統／API 更新訂單狀態時請帶入 context，否則會被狀態轉換規則擋下 */
 export const SKIP_ORDER_STATUS_TRANSITION = 'skipOrderStatusTransition' as const
+
+const isAdminUser = (user: unknown): boolean => {
+  const role = (user as { role?: unknown } | null | undefined)?.role
+  if (Array.isArray(role)) return role.includes('admin')
+  return role === 'admin'
+}
+
+const orderReadAccess: Access = ({ req: { user } }) => {
+  if (!user) return false
+  if (isAdminUser(user)) return true
+
+  const role = (user as { role?: unknown } | null | undefined)?.role
+  const isPartner = Array.isArray(role) ? role.includes('partner') : role === 'partner'
+
+  if (isPartner) {
+    return {
+      createdBy: {
+        equals: user.id,
+      },
+    }
+  }
+
+  return false
+}
 
 const showAfterPendingPayment = (_: unknown, siblingData: { status?: string }) => {
   return ['待付款', '待確認付款', '待出貨', '已完成', '已取消'].includes(
@@ -26,12 +50,25 @@ const showPaymentDateField: Condition = (data) => {
   return ['待確認付款', '待出貨', '已完成'].includes(status)
 }
 
+/** 已取消訂單不顯示匯款資訊欄位。 */
+const showRemittanceFields: Condition = (data) => {
+  const status = typeof data?.status === 'string' ? data.status : ''
+  return ['待確認付款', '待出貨', '已完成'].includes(status)
+}
+
 export const Order: CollectionConfig = {
   slug: 'orders',
   admin: {
     useAsTitle: 'id',
-    baseListFilter: (props) => {
-      return adminOrOwner(props)
+    defaultColumns: ['id', 'name', 'date', 'location', 'status', '複製連結', 'updatedAt'],
+    baseListFilter: ({ req: { user } }) => {
+      if (!user) return null
+      if (isAdminUser(user)) return null
+      return {
+        createdBy: {
+          equals: user.id,
+        },
+      }
     },
   },
 
@@ -75,7 +112,7 @@ export const Order: CollectionConfig = {
       name: 'createdBy',
       type: 'relationship',
       relationTo: 'users',
-      defaultValue: ({ user }) => user.id,
+      defaultValue: ({ user }) => user?.id,
       admin: {
         position: 'sidebar',
       }
@@ -169,7 +206,7 @@ export const Order: CollectionConfig = {
       name: 'last5',
       type: 'text',
       admin: {
-        condition: showAfterPaymentSubmitted,
+        condition: showRemittanceFields,
         readOnly: true,
       },
     },
@@ -179,7 +216,7 @@ export const Order: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
       admin: {
-        condition: showAfterPaymentSubmitted,
+        condition: showRemittanceFields,
         readOnly: true,
       },
     },
@@ -187,9 +224,30 @@ export const Order: CollectionConfig = {
   ],
 
   access: {
-    read: ({ req: { user } }) => {
-      return Boolean(user)
+    read: orderReadAccess,
+    create: ({ req: { user } }) => {
+      if (!user) return false
+      if (isAdminUser(user)) return true
+
+      const role = (user as { role?: unknown } | null | undefined)?.role
+      const isPartner = Array.isArray(role) ? role.includes('partner') : role === 'partner'
+      return Boolean(isPartner)
     },
+    update: ({ req: { user } }) => {
+      if (!user) return false
+      if (isAdminUser(user)) return true
+
+      const role = (user as { role?: unknown } | null | undefined)?.role
+      const isPartner = Array.isArray(role) ? role.includes('partner') : role === 'partner'
+      if (!isPartner) return false
+
+      return {
+        createdBy: {
+          equals: user.id,
+        },
+      }
+    },
+    delete: ({ req: { user } }) => Boolean(user && isAdminUser(user)),
   },
 
   hooks: {
@@ -226,8 +284,12 @@ export const Order: CollectionConfig = {
           return data
         }
 
+        if (prevStatus === '待出貨' && nextStatus === '已完成') {
+          return data
+        }
+
         throw new APIError(
-          `無法將訂單狀態從「${prevStatus ?? '-'}」變更為「${nextStatus ?? '-'}」。後台僅允許在「待確認付款」時改為「待出貨」，其餘請交由前台／API 流程處理。`,
+          `無法將訂單狀態從「${prevStatus ?? '-'}」變更為「${nextStatus ?? '-'}」。後台僅允許「待確認付款→待出貨」以及「待出貨→已完成」，其餘請交由前台／API 流程處理。`,
           400,
         )
       },
@@ -279,6 +341,8 @@ export const Order: CollectionConfig = {
     ],
     beforeRead: [
       async ({ doc, req: { user } }) => {
+        if (!user) return null
+        if (isAdminUser(user)) return doc
         return doc?.createdBy === user?.id ? doc : null
       },
     ],

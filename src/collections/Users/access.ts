@@ -2,15 +2,15 @@ import { Access } from 'payload'
 
 export enum Role {
   Admin = 'admin',
-  Vendor = 'vendor',
+  Partner = 'partner',
 }
 
 export const admin: Access = ({ req: { user } }) => {
   return Boolean(user?.role?.includes(Role.Admin))
 }
 
-export const vendor: Access = ({ req: { user } }) => {
-  return Boolean(user?.role?.includes(Role.Vendor))
+export const partner: Access = ({ req: { user } }) => {
+  return Boolean(user?.role?.includes(Role.Partner))
 }
 export const owner: Access = ({ req: { user } }) => {
   return {

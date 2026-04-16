@@ -19,6 +19,7 @@ function optionEnabled(
 ): boolean {
   if (currentFormValue != null && optionValue === currentFormValue) return true
   if (baselineStatus === '待確認付款' && optionValue === '待出貨') return true
+  if (baselineStatus === '待出貨' && optionValue === '已完成') return true
   return false
 }
 
