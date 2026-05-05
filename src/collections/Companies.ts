@@ -4,6 +4,10 @@ import { admin } from './Users/access'
 
 export const Companies: CollectionConfig = {
   slug: 'companies',
+  labels: {
+    singular: '禮儀公司',
+    plural: '禮儀公司',
+  },
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'slug', 'updatedAt'],
@@ -39,7 +43,7 @@ export const Companies: CollectionConfig = {
       },
     },
     {
-      label: 'Logo',
+      label: '公司 Logo',
       name: 'logo',
       type: 'upload',
       relationTo: 'media',

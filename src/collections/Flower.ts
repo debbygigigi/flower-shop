@@ -2,6 +2,10 @@ import { CollectionConfig } from 'payload'
 
 export const Flower: CollectionConfig = {
   slug: 'flowers',
+  labels: {
+    singular: '花品',
+    plural: '花品',
+  },
   admin: {
     useAsTitle: 'name',
     hidden: ({ user }) => Boolean(user?.role?.includes('partner')),
@@ -19,20 +23,24 @@ export const Flower: CollectionConfig = {
 
   fields: [
     {
+      label: '花名',
       name: 'name',
       type: 'text',
       required: true,
     },
     {
+      label: '價格',
       name: 'price',
       type: 'number',
       required: true,
     },
     {
+      label: '描述',
       name: 'description',
       type: 'textarea',
     },
     {
+      label: '圖片',
       name: 'image',
       type: 'upload',
       relationTo: 'media',

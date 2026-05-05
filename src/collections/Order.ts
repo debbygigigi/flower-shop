@@ -58,6 +58,10 @@ const showRemittanceFields: Condition = (data) => {
 
 export const Order: CollectionConfig = {
   slug: 'orders',
+  labels: {
+    singular: '訂單',
+    plural: '訂單',
+  },
   admin: {
     useAsTitle: 'id',
     defaultColumns: ['id', 'name', 'date', 'location', 'status', '複製連結', 'updatedAt'],

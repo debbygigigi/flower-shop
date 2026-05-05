@@ -4,6 +4,10 @@ import { admin, adminOrOwner, owner } from './access'
 
 export const Users: CollectionConfig = {
   slug: 'users',
+  labels: {
+    singular: '使用者',
+    plural: '使用者',
+  },
   admin: {
     useAsTitle: 'name',
     hidden: ({ user }) => Boolean(user?.role?.includes('partner')),
@@ -36,15 +40,17 @@ export const Users: CollectionConfig = {
 
   fields: [
     {
+      label: '姓名',
       name: 'name',
       type: 'text',
     },
     {
+      label: '角色',
       name: 'role',
       type: 'select',
       options: [
-        { label: 'Admin', value: 'admin' },
-        { label: 'Partner', value: 'partner' },
+        { label: '管理員', value: 'admin' },
+        { label: '合作夥伴', value: 'partner' },
       ],
       defaultValue: 'partner',
     },
